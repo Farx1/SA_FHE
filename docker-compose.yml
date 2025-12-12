@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  fhe-sentiment:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fhe-sentiment-analysis
+    volumes:
+      # Mount project directory for development
+      - .:/app
+      # Mount models directory to persist trained models
+      - ./models:/app/models
+    ports:
+      # Gradio interface
+      - "7860:7860"
+      # Flask API
+      - "8000:8000"
+      # Next.js (if used)
+      - "3000:3000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    stdin_open: true
+    tty: true
+    # Override command to keep container running
+    command: tail -f /dev/null
+

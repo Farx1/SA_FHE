@@ -1,0 +1,16 @@
+# Requirements for Docker (concrete-ml is already in the base image)
+transformers>=4.30.0
+datasets>=2.12.0
+torch>=2.0.0
+scikit-learn>=1.3.0
+xgboost>=2.0.0
+gradio>=3.40.0
+numpy>=1.24.0
+pandas>=2.0.0
+tqdm>=4.65.0
+plotly>=5.14.0
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Note: concrete-ml is already installed in the base image (zamafhe/concrete-ml)
+
