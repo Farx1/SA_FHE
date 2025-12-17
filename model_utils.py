@@ -43,22 +43,24 @@ def save_model(model, model_name: str = "sentiment_fhe_model"):
     if not FHE_AVAILABLE:
         raise ImportError("Concrete-ML is not available. Cannot save FHE model.")
     
-    os.makedirs("models", exist_ok=True)
+    model_dir = Path("models") / model_name
+    # Clean directory if exists
+    if model_dir.exists():
+        import shutil
+        shutil.rmtree(model_dir)
+    model_dir.mkdir(parents=True, exist_ok=True)
     
-    # Save FHE model with all its keys
+    # Save FHE model with all its keys using FHEModelDev
     # FHEModelDev encapsulates the compiled model + cryptographic keys
-    fhe_api = FHEModelDev(model_name, model)
+    # path_dir is passed to constructor, not to save()
+    fhe_api = FHEModelDev(path_dir=str(model_dir), model=model)
     # Saves in models/sentiment_fhe_model/:
     # - The compiled FHE circuit
     # - Cryptographic keys (necessary for encryption/decryption)
     # - Quantization parameters
-    fhe_api.save("models/")
+    fhe_api.save(mode="inference")
     
-    # Also save the clear model for reference (optional)
-    with open(f"models/{model_name}_clear.pkl", "wb") as f:
-        pickle.dump(model, f)
-    
-    print(f"Model saved in models/{model_name}/")
+    print(f"FHE Model saved in {model_dir}/")
 
 
 def load_model(model_name: str = "sentiment_fhe_model"):

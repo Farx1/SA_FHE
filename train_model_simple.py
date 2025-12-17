@@ -34,9 +34,10 @@ def load_and_prepare_data():
     print("Chargement du dataset...")
     
     try:
-        # Utiliser un dataset de reviews Amazon (augmenté pour meilleure qualité)
-        # Utiliser 2000 exemples pour un meilleur entraînement
-        dataset = load_dataset("amazon_polarity", split="train[:2000]")
+        # Utiliser un dataset de reviews Amazon
+        # 500 exemples pour FHE (plus rapide), 2000 pour mode standard
+        n_samples = 500 if FHE_AVAILABLE else 2000
+        dataset = load_dataset("amazon_polarity", split=f"train[:{n_samples}]")
         df = pd.DataFrame(dataset)
         df = df.rename(columns={"content": "text", "label": "sentiment"})
         print(f"Dataset chargé: {len(df)} exemples")
@@ -96,17 +97,19 @@ def main():
     print("\n=== Entraînement du modèle XGBoost ===")
     
     if FHE_AVAILABLE:
-        model = XGBClassifier()
+        from concrete.ml.sklearn import XGBClassifier as FHEXGBClassifier
+        model = FHEXGBClassifier()
+        # Reduced parameters for faster training with FHE
         parameters = {
-            "n_bits": [3],  # Fixed to 3 for better precision
-            "max_depth": [3, 5, 7],
-            "n_estimators": [50, 100, 150],
-            "learning_rate": [0.1, 0.2],
+            "n_bits": [3],
+            "max_depth": [3],
+            "n_estimators": [50],
+            "learning_rate": [0.1],
             "n_jobs": [-1],
         }
     else:
-        from xgboost import XGBClassifier
-        model = XGBClassifier()
+        from xgboost import XGBClassifier as StandardXGBClassifier
+        model = StandardXGBClassifier()
         parameters = {
             "max_depth": [3, 5, 7],
             "n_estimators": [50, 100, 150],
