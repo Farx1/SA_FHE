@@ -32,8 +32,11 @@ def load_model():
         import pickle
         from pathlib import Path
         
+        # Use absolute paths based on project root
+        base_path = Path(__file__).parent
+        
         # Load processor
-        processor_path = Path("models/text_processor.pkl")
+        processor_path = base_path / "models/text_processor.pkl"
         if processor_path.exists():
             with open(processor_path, "rb") as f:
                 processor = pickle.load(f)
@@ -41,14 +44,14 @@ def load_model():
             processor = TextProcessor()
         
         # Load model
-        model_path_simulator = Path("models/sentiment_fhe_model/model_with_simulator.pkl")
+        model_path_simulator = base_path / "models/sentiment_fhe_model/model_with_simulator.pkl"
         if model_path_simulator.exists():
             with open(model_path_simulator, "rb") as f:
                 model_api = pickle.load(f)
             model_loaded = True
             print("Model loaded successfully")
         else:
-            print("WARNING: Model not found")
+            print("WARNING: Model not found at", model_path_simulator)
             model_loaded = False
             
     except Exception as e:

@@ -21,16 +21,48 @@ class TextProcessor:
             model_name: Nom du modèle transformer à utiliser
             device: Device PyTorch ('cuda' ou 'cpu'). Si None, détecte automatiquement.
         """
-        if device is None:
+        self.model_name = model_name
+        self._device = device
+        self._tokenizer = None
+        self._model = None
+        self._load_model()
+    
+    def _load_model(self):
+        """Charge le modèle et le tokenizer."""
+        if self._device is None:
             self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         else:
-            self.device = device
+            self.device = self._device
             
-        print(f"Chargement du modèle {model_name} sur {self.device}...")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
-        self.model = self.model.to(self.device)
-        self.model.eval()  # Mode évaluation
+        print(f"Chargement du modèle {self.model_name} sur {self.device}...")
+        self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self._model = AutoModelForSequenceClassification.from_pretrained(self.model_name)
+        self._model = self._model.to(self.device)
+        self._model.eval()  # Mode évaluation
+    
+    @property
+    def tokenizer(self):
+        if self._tokenizer is None:
+            self._load_model()
+        return self._tokenizer
+    
+    @property
+    def model(self):
+        if self._model is None:
+            self._load_model()
+        return self._model
+    
+    def __getstate__(self):
+        """Pour la sérialisation pickle - ne pas sauvegarder le modèle."""
+        return {'model_name': self.model_name, '_device': self._device}
+    
+    def __setstate__(self, state):
+        """Pour la désérialisation pickle - recharger le modèle."""
+        self.model_name = state['model_name']
+        self._device = state['_device']
+        self._tokenizer = None
+        self._model = None
+        self._load_model()
         
     def text_to_tensor(self, texts: List[str], batch_size: int = 32) -> np.ndarray:
         """
