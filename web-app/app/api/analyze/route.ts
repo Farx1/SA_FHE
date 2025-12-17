@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Call the Python Flask API server
-    const apiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+    const apiUrl = process.env.PYTHON_API_URL || 'http://localhost:8002';
     
     try {
       const response = await fetch(`${apiUrl}/analyze`, {

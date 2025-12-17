@@ -85,6 +85,7 @@ export default function Page() {
   const [latencyMs, setLatencyMs] = useState<number | undefined>(undefined);
 
   const [stepIndex, setStepIndex] = useState<number>(-1);
+  const [allStepsDone, setAllStepsDone] = useState(false);
   const stepTimerRef = useRef<number | null>(null);
 
   const demoSteps: DemoStep[] = useMemo(
@@ -145,6 +146,7 @@ export default function Page() {
     setScore(undefined);
     setLatencyMs(undefined);
     setStepIndex(0);
+    setAllStepsDone(false);
 
     // Visual stepper (smooth UX even if API responds fast)
     if (stepTimerRef.current) window.clearInterval(stepTimerRef.current);
@@ -164,13 +166,13 @@ export default function Page() {
     try {
       // 1) try internal Next.js proxy route if you have it
       // 2) fallback to direct Flask API via NEXT_PUBLIC_API_URL (default: http://localhost:5000)
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8002";
 
       let res: ApiResponse | null = null;
       try {
-        res = await postJSON<ApiResponse>("/api/predict", { text });
+        res = await postJSON<ApiResponse>("/api/analyze", { text });
       } catch {
-        res = await postJSON<ApiResponse>(`${apiBase}/predict`, { text });
+        res = await postJSON<ApiResponse>(`${apiBase}/analyze`, { text });
       }
 
       const inferredLabel = normalizeLabel(res.label ?? res.sentiment);
@@ -186,6 +188,7 @@ export default function Page() {
 
       // Finish stepper nicely
       setStepIndex(demoSteps.length - 1);
+      setAllStepsDone(true);
     } catch (e: any) {
       // Offline fallback (still looks good for demo)
       const fallback = text.toLowerCase();
@@ -200,6 +203,8 @@ export default function Page() {
       setLabel(inferred);
       setScore(undefined);
       setLatencyMs(Math.round(performance.now() - startedAt));
+      setStepIndex(demoSteps.length - 1);
+      setAllStepsDone(true);
       setErr(
         "API unreachable — fallback demo mode enabled. (Check Flask / CORS / NEXT_PUBLIC_API_URL)"
       );
@@ -433,11 +438,12 @@ export default function Page() {
                   <button
                     type="button"
                     onClick={() => {
-                      setText("This is the worst purchase I’ve made. Totally broken.");
+                      setText("This is the worst purchase I've made. Totally broken.");
                       setLabel("unknown");
                       setScore(undefined);
                       setLatencyMs(undefined);
                       setStepIndex(-1);
+                      setAllStepsDone(false);
                       setErr(null);
                     }}
                     className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
@@ -481,8 +487,8 @@ export default function Page() {
 
             <div className="mt-5 space-y-3">
               {demoSteps.map((s, i) => {
-                const active = stepIndex === i;
-                const done = stepIndex > i;
+                const active = stepIndex === i && !allStepsDone;
+                const done = stepIndex > i || (stepIndex === i && allStepsDone);
                 const idle = stepIndex < i;
 
                 return (
@@ -629,7 +635,7 @@ export default function Page() {
             <div>
               <div className="text-sm font-semibold">About this showcase</div>
               <div className="mt-1 max-w-2xl text-sm text-white/65">
-                Goal: make the project presentable (portfolio / course demo) with a modern, readable, and credible frontend.
+                Goal: 
               </div>
             </div>
             <a

@@ -12,6 +12,18 @@ This project shows how to:
 
 The end result: a sentiment analysis system that can classify text as positive or negative while the data remains encrypted during processing.
 
+## Why FHE? Real-World Applications
+
+Fully Homomorphic Encryption enables **privacy-preserving machine learning**: the server processes your data without ever seeing it in clear text. This has critical applications in industries where data confidentiality is paramount:
+
+- **Healthcare**: Analyze patient feedback or medical notes for sentiment without exposing protected health information (HIPAA compliance)
+- **Finance**: Process confidential client communications or internal reports while maintaining regulatory compliance (GDPR, banking secrecy)
+- **Legal**: Analyze case documents or client correspondence without breaching attorney-client privilege
+- **HR & Surveys**: Conduct anonymous employee satisfaction analysis where responses remain truly confidential
+- **Social Media Moderation**: Detect harmful content on encrypted messages without reading private conversations
+
+In this project, the **server never sees**: the original text, the numerical embeddings, or the final prediction result. Only encrypted data flows through the inference pipeline, ensuring end-to-end privacy.
+
 ## Technologies Used
 
 - **RoBERTa** (Transformers library) - Converts text to 768-dimensional vectors

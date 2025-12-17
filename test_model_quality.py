@@ -19,7 +19,7 @@ print(f"Chargement du modèle depuis {model_path}...")
 with open(model_path, 'rb') as f:
     model = pickle.load(f)
 
-print("✓ Modèle chargé avec succès\n")
+print("[OK] Modele charge avec succes\n")
 
 # Test phrases
 test_phrases = [
