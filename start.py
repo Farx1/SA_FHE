@@ -20,27 +20,30 @@ def check_model():
     """Vérifie que le modèle est entraîné."""
     model_path = Path("models/sentiment_fhe_model/model_with_simulator.pkl")
     if not model_path.exists():
-        print("❌ Modèle non trouvé!")
-        print("\n💡 Vous devez d'abord entraîner le modèle:")
+        print("[ERREUR] Modele non trouve!")
+        print("\n[INFO] Vous devez d'abord entrainer le modele:")
         print("   python train_model_simple.py\n")
         return False
-    print("✓ Modèle trouvé")
+    print("[OK] Modele trouve")
     return True
 
 def check_npm():
     """Vérifie si npm est installé."""
     try:
+        # Utiliser shell=True sur Windows pour trouver npm dans le PATH
+        use_shell = sys.platform == "win32"
         result = subprocess.run(
             ["npm", "--version"],
             capture_output=True,
-            check=True
+            check=True,
+            shell=use_shell
         )
         version = result.stdout.decode().strip()
-        print(f"✓ npm détecté (version {version})")
+        print(f"[OK] npm detecte (version {version})")
         return True, version
     except (subprocess.CalledProcessError, FileNotFoundError):
-        print("❌ npm n'est pas installé")
-        print("\n💡 Installez Node.js depuis https://nodejs.org/")
+        print("[ERREUR] npm n'est pas installe")
+        print("\n[INFO] Installez Node.js depuis https://nodejs.org/")
         return False, None
 
 def check_webapp_dependencies():
@@ -49,25 +52,27 @@ def check_webapp_dependencies():
     node_modules = web_app_path / "node_modules"
     
     if not node_modules.exists():
-        print("⚠️  Installation des dépendances Next.js...")
+        print("[INFO] Installation des dependances Next.js...")
         try:
+            use_shell = sys.platform == "win32"
             subprocess.run(
                 ["npm", "install"],
                 cwd=str(web_app_path),
-                check=True
+                check=True,
+                shell=use_shell
             )
-            print("✓ Dépendances installées")
+            print("[OK] Dependances installees")
         except subprocess.CalledProcessError:
-            print("❌ Erreur lors de l'installation des dépendances")
+            print("[ERREUR] Erreur lors de l'installation des dependances")
             return False
     else:
-        print("✓ Dépendances Next.js déjà installées")
+        print("[OK] Dependances Next.js deja installees")
     
     return True
 
 def start_api():
     """Démarre le serveur API Flask."""
-    print("\n📡 Démarrage du serveur API Flask (port 8002)...")
+    print("\n[API] Demarrage du serveur API Flask (port 8002)...")
     
     api_process = subprocess.Popen(
         [sys.executable, "api_server.py"],
@@ -82,24 +87,26 @@ def start_api():
     if api_process.poll() is not None:
         # Le processus s'est terminé (erreur)
         stdout, stderr = api_process.communicate()
-        print(f"❌ Erreur lors du démarrage de l'API:")
+        print(f"[ERREUR] Erreur lors du demarrage de l'API:")
         print(stderr)
         return None
     
-    print("✓ API démarrée sur http://localhost:8002")
+    print("[OK] API demarree sur http://localhost:8002")
     return api_process
 
 def start_nextjs():
     """Démarre l'application Next.js."""
-    print("\n🌐 Démarrage de l'application Next.js...")
+    print("\n[NEXTJS] Demarrage de l'application Next.js...")
     
     web_app_path = Path("web-app")
+    use_shell = sys.platform == "win32"
     nextjs_process = subprocess.Popen(
         ["npm", "run", "dev"],
         cwd=str(web_app_path),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True
+        text=True,
+        shell=use_shell
     )
     
     # Attendre un peu pour que Next.js démarre
@@ -108,34 +115,34 @@ def start_nextjs():
     if nextjs_process.poll() is not None:
         # Le processus s'est terminé (erreur)
         stdout, stderr = nextjs_process.communicate()
-        print(f"❌ Erreur lors du démarrage de Next.js:")
+        print(f"[ERREUR] Erreur lors du demarrage de Next.js:")
         print(stderr)
         return None
     
-    print("✓ Next.js démarré sur http://localhost:3000")
+    print("[OK] Next.js demarre sur http://localhost:3000")
     return nextjs_process
 
 def cleanup_processes(api_process, nextjs_process):
     """Arrête proprement les processus."""
-    print("\n\n🛑 Arrêt des serveurs...")
+    print("\n\n[ARRET] Arret des serveurs...")
     
     if api_process and api_process.poll() is None:
         api_process.terminate()
         try:
             api_process.wait(timeout=5)
-            print("✓ API arrêtée")
+            print("[OK] API arretee")
         except subprocess.TimeoutExpired:
             api_process.kill()
-            print("✓ API arrêtée (forcé)")
+            print("[OK] API arretee (force)")
     
     if nextjs_process and nextjs_process.poll() is None:
         nextjs_process.terminate()
         try:
             nextjs_process.wait(timeout=5)
-            print("✓ Next.js arrêté")
+            print("[OK] Next.js arrete")
         except subprocess.TimeoutExpired:
             nextjs_process.kill()
-            print("✓ Next.js arrêté (forcé)")
+            print("[OK] Next.js arrete (force)")
 
 def main():
     """Fonction principale."""
@@ -167,12 +174,12 @@ def main():
     
     # 6. Afficher les informations
     print("\n" + "="*70)
-    print("  ✅ Application démarrée avec succès!")
+    print("  [SUCCES] Application demarree avec succes!")
     print("="*70)
-    print("\n📍 URLs disponibles:")
+    print("\n[URLS] URLs disponibles:")
     print("   - Frontend: http://localhost:3000")
     print("   - API:      http://localhost:8002")
-    print("\n💡 Appuyez sur Ctrl+C pour arrêter les serveurs\n")
+    print("\n[INFO] Appuyez sur Ctrl+C pour arreter les serveurs\n")
     
     # 7. Attendre l'interruption
     try:
@@ -180,22 +187,22 @@ def main():
         while True:
             # Vérifier que les processus tournent toujours
             if api_process.poll() is not None:
-                print("\n⚠️  L'API s'est arrêtée")
+                print("\n[WARNING] L'API s'est arretee")
                 break
             if nextjs_process.poll() is not None:
-                print("\n⚠️  Next.js s'est arrêté")
+                print("\n[WARNING] Next.js s'est arrete")
                 break
             time.sleep(1)
     except KeyboardInterrupt:
         pass
     finally:
         cleanup_processes(api_process, nextjs_process)
-        print("\n✓ Application arrêtée\n")
+        print("\n[OK] Application arretee\n")
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n\n⚠️  Interruption par l'utilisateur")
+        print("\n\n[WARNING] Interruption par l'utilisateur")
         sys.exit(0)
 
