@@ -407,7 +407,7 @@ export default function Page() {
               desc="The frontend sends a request to the backend (Flask) and displays the result. If the API is down, a demo fallback activates."
             />
 
-            <div className="mt-6 rounded-[28px] border border-white/12 bg-black/35 p-5 backdrop-blur-xl">
+            <div className="mt-6 rounded-[28px] border border-white/12 bg-black/35 p-5 backdrop-blur-xl" suppressHydrationWarning>
               <label className="text-xs text-white/60">Text</label>
               <textarea
                 value={text}
@@ -415,6 +415,7 @@ export default function Page() {
                 rows={5}
                 className="mt-2 w-full resize-none rounded-2xl border border-white/10 bg-black/40 p-4 text-sm text-white/90 outline-none ring-0 placeholder:text-white/35 focus:border-white/20"
                 placeholder="Type something…"
+                suppressHydrationWarning
               />
 
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -447,6 +448,7 @@ export default function Page() {
                       setErr(null);
                     }}
                     className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
+                    suppressHydrationWarning
                   >
                     Use negative example
                   </button>
@@ -652,7 +654,7 @@ export default function Page() {
 
       <footer className="border-t border-white/10 bg-black/20">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-8 text-sm text-white/60 md:flex-row md:items-center md:justify-between">
-          <div>© {new Date().getFullYear()} SA_FHE — student showcase</div>
+          <div>© 2025 SA_FHE — student showcase</div>
           <div className="flex items-center gap-4">
             <a className="hover:text-white" href="#demo">
               Demo
