@@ -26,183 +26,76 @@ In this project, the **server never sees**: the original text, the numerical emb
 
 ## Technologies Used
 
+**Backend:**
+- **Python** - Main programming language
+- **Flask** - REST API server
 - **RoBERTa** (Transformers library) - Converts text to 768-dimensional vectors
 - **XGBoost** - Machine learning model for sentiment classification
-- **Concrete-ML** - Library for FHE operations (when available)
-- **Python** - Main programming language
-- **Gradio** - Web interface for testing
-- **Next.js** - Modern web application for project showcase
+- **Concrete-ML** - Library for FHE operations (when available, falls back to simulator on Windows)
 
-## Installation
+**Frontend:**
+- **Next.js 16** - React framework for the web application
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **Framer Motion** - Animation library
 
-### Quick Start (Windows) - Recommended
+## Installation & Setup
 
-**Easiest way: Use the all-in-one script!**
+### Prerequisites
 
-```bash
-# 1. Install dependencies (Windows - without concrete-ml)
-pip install -r requirements.txt
+1. **Python 3.11+** installed
+2. **Node.js 18+** and npm installed
+3. **Trained model** (see step 1 below)
 
-# Or use the Windows-specific file (same thing):
-# pip install -r requirements-windows.txt
+### Step 1: Train the Model (One-time setup)
 
-# 2. Run everything: training → tests → launch app
-python run_all.py
-```
-
-**Note**: `concrete-ml` is not available on Windows. The project automatically uses an FHE simulator for demonstration. This is normal and expected behavior.
-
-This script will:
-- Check dependencies
-- Train the model (or use existing if available)
-- Run quality tests
-- Launch the application (Gradio or Next.js)
-
-**Manual steps (if needed):**
+First, you need to train the sentiment analysis model:
 
 ```bash
-# 1. Install dependencies
+# Install Python dependencies
 pip install -r requirements.txt
 
-# 2. Train the model
+# Train the model (takes a few minutes)
 python train_model_simple.py
 
-# 3. Test the model
+# Optional: Test the model quality
 python test_model_quality.py
-
-# 4. Launch the web interface
-python client.py
 ```
 
-The interface will be available at `http://localhost:7860` (or another port if 7860 is busy).
+**Note**: On Windows, the project uses an FHE simulator for demonstration. The predictions are accurate, but encryption is simulated for educational purposes. For real FHE, use Docker/Linux/WSL.
 
-### For Real FHE (Docker/Linux/WSL/Google Colab)
+This will create the model files in `models/sentiment_fhe_model/` that are required for the API.
 
-For actual FHE encryption, you need Concrete-ML which requires a Linux environment:
-
-**Option 1: Docker (Recommended for Windows) 🐳**
-
-Docker allows you to run Concrete-ML on Windows without WSL:
+### Step 2: Install Frontend Dependencies
 
 ```bash
-# Windows PowerShell
-.\run_docker.ps1 all
-
-# Or Linux/Mac
-chmod +x run_docker.sh
-./run_docker.sh all
+cd web-app
+npm install
+cd ..
 ```
-
-**Available Docker commands:**
-```bash
-# Train the model
-.\run_docker.ps1 train
-
-# Test the model
-.\run_docker.ps1 test
-
-# Launch Gradio interface
-.\run_docker.ps1 gradio
-
-# Launch Flask API
-.\run_docker.ps1 api
-
-# Open shell in container
-.\run_docker.ps1 shell
-```
-
-**Prerequisites for Docker:**
-- Install [Docker Desktop](https://www.docker.com/products/docker-desktop) for Windows
-- Make sure Docker is running before executing the commands
-
-**Option 1b: Docker with MCP Tool Kit 🔌 (Advanced)**
-
-MCP Tool Kit provides enhanced Docker management and integration with Claude Desktop:
-
-```bash
-# Windows PowerShell - Install MCP Tool Kit
-.\install_mcp_toolkit.ps1
-
-# Configure MCP server for this project
-.\setup_mcp_server.ps1
-
-# Run via MCP
-.\run_mcp.ps1 all
-
-# Or Linux/Mac
-chmod +x install_mcp_toolkit.sh setup_mcp_server.sh run_mcp.sh
-./install_mcp_toolkit.sh
-./setup_mcp_server.sh
-./run_mcp.sh all
-```
-
-**Available MCP commands:**
-```bash
-# Train the model
-.\run_mcp.ps1 train
-
-# Test the model
-.\run_mcp.ps1 test
-
-# Launch Gradio interface
-.\run_mcp.ps1 gradio
-
-# Launch Flask API
-.\run_mcp.ps1 api
-
-# Start MCP server mode (for Claude Desktop integration)
-.\run_mcp.ps1 mcp-server
-```
-
-**MCP Tool Kit Benefits:**
-- Enhanced Docker container management
-- Integration with Claude Desktop
-- Server mode for remote access
-- Better logging and monitoring
-
-**Option 2: Google Colab (Easiest)**
-- Open `FHE_Sentiment_Analysis_Complete.ipynb` in Google Colab
-- Run all cells - everything is pre-configured
-
-**Option 3: Linux/WSL**
-```bash
-pip install concrete-ml
-python train_model_simple.py
-```
-
-**Note**: On Windows without Docker/WSL, the project uses an FHE simulator that demonstrates the complete FHE process structure. The predictions are accurate, but the encryption is simulated for educational purposes. **Use Docker to get real FHE on Windows!**
 
 ## Project Structure
 
 ```
 .
-├── run_all.py                      # ⭐ All-in-one script (training → tests → launch)
-├── run_docker.ps1                  # 🐳 Docker script for Windows (PowerShell)
-├── run_docker.sh                    # 🐳 Docker script for Linux/Mac
-├── install_mcp_toolkit.ps1         # 🔌 MCP Tool Kit installer (Windows)
-├── install_mcp_toolkit.sh          # 🔌 MCP Tool Kit installer (Linux/Mac)
-├── setup_mcp_server.ps1            # 🔌 MCP server configuration (Windows)
-├── setup_mcp_server.sh             # 🔌 MCP server configuration (Linux/Mac)
-├── run_mcp.ps1                     # 🔌 Run via MCP Tool Kit (Windows)
-├── run_mcp.sh                       # 🔌 Run via MCP Tool Kit (Linux/Mac)
-├── Dockerfile                       # Docker configuration
-├── docker-compose.yml              # Docker Compose configuration
-├── requirements-docker.txt         # Dependencies for Docker (without concrete-ml)
-├── train_model_simple.py          # Main training script
-├── client.py                       # Gradio web interface
-├── api_server.py                   # Flask API for Next.js app
+├── api_server.py                   # Flask API server (required for frontend)
+├── train_model_simple.py          # Model training script (run once)
+├── test_model_quality.py           # Model quality tests
 ├── text_processor.py               # Text to vector conversion (RoBERTa)
 ├── model_utils.py                  # FHE model utilities
 ├── fhe_simulator.py                # FHE simulator for Windows
-├── test_model.py                   # Model consistency tests
-├── test_model_quality.py           # Quality tests with sample phrases
-├── FHE_Sentiment_Analysis_Complete.ipynb  # Complete Colab notebook
-├── requirements.txt                # Python dependencies (Windows - no concrete-ml)
-├── requirements-windows.txt        # Windows-specific requirements
-├── web-app/                        # Next.js showcase application
-│   ├── app/                        # Next.js pages
+├── requirements.txt                # Python dependencies
+├── web-app/                        # Next.js frontend application
+│   ├── app/                        # Next.js pages and API routes
+│   │   ├── page.tsx               # Main landing page
+│   │   └── api/analyze/route.ts   # Next.js API proxy
 │   └── components/                 # React components
+│       ├── Hero.tsx               # Hero section
+│       ├── DemoSection.tsx        # Interactive demo
+│       ├── FHEProcess.tsx         # FHE pipeline visualization
+│       └── ...
 └── models/                         # Trained models (created after training)
+    └── sentiment_fhe_model/       # FHE model files
 ```
 
 ## How It Works
@@ -251,73 +144,63 @@ The model uses **XGBoost** with the following optimized hyperparameters:
 
 **Note**: If the Amazon Polarity dataset is unavailable, the training script automatically falls back to the IMDB dataset as an alternative.
 
-## Usage
+## Running the Application
 
-### Quick Start (All-in-One)
+The application consists of two parts that need to run simultaneously:
 
-The easiest way to get started:
+### Terminal 1: Start the Python API Server
 
-```bash
-python run_all.py
-```
-
-This single script will:
-1. ✅ Check all dependencies
-2. 🚀 Train the model (or use existing)
-3. 🧪 Run quality tests
-4. 🎨 Launch the application (choose Gradio or Next.js)
-
-### Step-by-Step Usage
-
-**1. Training the Model**
+The Flask API server handles sentiment analysis requests from the frontend:
 
 ```bash
-python train_model_simple.py
-```
-
-This will:
-- Load 2000 examples from the Amazon Polarity dataset
-- Train an XGBoost model with optimized hyperparameters
-- Compile the model for FHE (or use simulator if Concrete-ML unavailable)
-- Save the model to `models/sentiment_fhe_model/`
-
-**Expected accuracy**: ~89% on test set
-
-**2. Testing the Model**
-
-Test with predefined phrases:
-```bash
-python test_model_quality.py
-```
-
-Or run consistency tests:
-```bash
-python test_model.py
-```
-
-**3. Using the Web Interface**
-
-**Gradio Interface** (Python - Simple & Fast):
-```bash
-python client.py
-```
-Features:
-- Real-time sentiment analysis
-- Live statistics dashboard
-- Interactive charts
-- Step-by-step FHE process visualization
-
-**Next.js Showcase** (Modern web app):
-```bash
-# Terminal 1: Start Python API
 python api_server.py
+```
 
-# Terminal 2: Start Next.js app
+The API will start on `http://localhost:8002` (or another port if 8002 is busy).
+
+**Expected output:**
+```
+Model loaded successfully
+Starting API server...
+Model loaded: True
+ * Running on http://127.0.0.1:8002
+```
+
+### Terminal 2: Start the Next.js Frontend
+
+In a new terminal, navigate to the web-app directory and start the development server:
+
+```bash
 cd web-app
-npm install
 npm run dev
 ```
-Open `http://localhost:3000` for a beautiful showcase of the project.
+
+The frontend will start on `http://localhost:3000` (or another port if 3000 is busy).
+
+**Expected output:**
+```
+▲ Next.js 16.0.1
+ - Local:        http://localhost:3000
+✓ Ready in X.Xs
+```
+
+### Access the Application
+
+Open your browser and navigate to:
+- **Frontend**: `http://localhost:3000`
+- **API Health Check**: `http://localhost:8002/health`
+
+### Using the Interface
+
+1. **Enter text** in the textarea (e.g., "I love this product!")
+2. **Click "Run inference"** to analyze the sentiment
+3. **View the results**: The interface will show:
+   - Sentiment prediction (Positive/Negative)
+   - Confidence score
+   - Processing time
+   - Step-by-step FHE pipeline visualization
+
+The frontend communicates with the Python API to perform encrypted sentiment analysis while keeping your data private.
 
 ## Model Performance
 
@@ -328,31 +211,35 @@ Open `http://localhost:3000` for a beautiful showcase of the project.
 
 ## Important Notes
 
-- **FHE Simulator**: On Windows without Docker/WSL, the project uses a simulator that demonstrates the FHE process structure. Predictions are accurate, but encryption is simulated.
-- **Real FHE on Windows**: Use Docker! Run `.\run_docker.ps1 all` to get real FHE encryption on Windows.
-- **Real FHE on Linux**: Requires Concrete-ML which works natively on Linux/WSL or Google Colab
-- **Model Training**: Takes a few minutes depending on your hardware
-- **FHE Compilation**: If using real FHE, compilation can take 5-10 minutes
-- **Docker**: The easiest way to get real FHE on Windows. Install Docker Desktop and use the provided scripts.
+- **FHE Simulator**: On Windows without Docker/WSL, the project uses a simulator that demonstrates the FHE process structure. Predictions are accurate, but encryption is simulated for educational purposes.
+- **Model Training**: Takes a few minutes depending on your hardware. Only needs to be done once.
+- **API Port**: The Flask API runs on port 8002 by default. If the port is busy, the server will show an error.
+- **Frontend Port**: Next.js runs on port 3000 by default. If occupied, it will automatically use the next available port (e.g., 3001, 3002).
+- **Both servers must run**: The frontend requires the API server to be running. Make sure both terminals are active.
 
 ## Requirements
 
-See `requirements.txt` for full list. Main dependencies:
+**Python dependencies** (see `requirements.txt`):
 - torch
 - transformers
 - xgboost
-- gradio
 - numpy
 - pandas
 - scikit-learn
-- plotly
 - flask
 - flask-cors
 
+**Node.js dependencies** (see `web-app/package.json`):
+- next
+- react
+- react-dom
+- tailwindcss
+- framer-motion
+
 **Note for Windows users**: 
-- `concrete-ml` is commented out in `requirements.txt` because it's not available natively on Windows
-- **Use Docker** (`.\run_docker.ps1`) to get real FHE on Windows
-- Without Docker, the project automatically uses the FHE simulator (predictions are accurate, encryption is simulated)
+- `concrete-ml` is not available natively on Windows, so the project automatically uses an FHE simulator
+- Predictions are accurate, but encryption is simulated for educational purposes
+- For real FHE, use Docker/Linux/WSL
 
 ## Future Improvements
 
