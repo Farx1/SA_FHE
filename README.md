@@ -68,16 +68,34 @@ This will create the model files in `models/sentiment_fhe_model/` that are requi
 
 ### Step 2: Install Frontend Dependencies
 
+The frontend dependencies will be automatically installed when you run `start.py` or `start.ps1`. 
+
+If you want to install them manually:
 ```bash
 cd web-app
 npm install
 cd ..
 ```
 
+### Step 3: Launch the Application
+
+Simply run:
+```bash
+# Windows (PowerShell)
+.\start.ps1
+
+# Or Linux/Mac/Windows (Python)
+python start.py
+```
+
+That's it! The script will start both the API and the frontend automatically.
+
 ## Project Structure
 
 ```
 .
+├── start.py                        # ⭐ Main launcher script (Python)
+├── start.ps1                       # ⭐ Main launcher script (PowerShell)
 ├── api_server.py                   # Flask API server (required for frontend)
 ├── train_model_simple.py          # Model training script (run once)
 ├── test_model_quality.py           # Model quality tests
@@ -146,55 +164,75 @@ The model uses **XGBoost** with the following optimized hyperparameters:
 
 ## Running the Application
 
-The application consists of two parts that need to run simultaneously:
+### Quick Start (Recommended)
 
-### Terminal 1: Start the Python API Server
+Simply run one command from the project root:
 
-The Flask API server handles sentiment analysis requests from the frontend:
+**Windows (PowerShell):**
+```powershell
+.\start.ps1
+```
 
+**Linux/Mac/Windows (Python):**
+```bash
+python start.py
+```
+
+This single command will:
+1. ✅ Check that the model is trained
+2. ✅ Verify npm is installed
+3. ✅ Install Next.js dependencies if needed
+4. 🚀 Start the Flask API server (port 8002)
+5. 🌐 Start the Next.js frontend (port 3000)
+
+**Expected output:**
+```
+==============================================================
+  FHE Sentiment Analysis - Démarrage
+==============================================================
+
+✓ Modèle trouvé
+✓ npm détecté (version X.X.X)
+✓ Dépendances Next.js déjà installées
+
+📡 Démarrage du serveur API Flask (port 8002)...
+✓ API démarrée sur http://localhost:8002
+
+🌐 Démarrage de l'application Next.js...
+✓ Next.js démarré sur http://localhost:3000
+
+==============================================================
+  ✅ Application démarrée avec succès!
+==============================================================
+
+📍 URLs disponibles:
+   - Frontend: http://localhost:3000
+   - API:      http://localhost:8002
+
+💡 Appuyez sur Ctrl+C pour arrêter les serveurs
+```
+
+### Manual Start (Alternative)
+
+If you prefer to run the servers separately:
+
+**Terminal 1 - API Server:**
 ```bash
 python api_server.py
 ```
 
-The API will start on `http://localhost:8002` (or another port if 8002 is busy).
-
-**Expected output:**
-```
-Model loaded successfully
-Starting API server...
-Model loaded: True
- * Running on http://127.0.0.1:8002
-```
-
-### Terminal 2: Start the Next.js Frontend
-
-In a new terminal, navigate to the web-app directory and start the development server:
-
+**Terminal 2 - Next.js Frontend:**
 ```bash
 cd web-app
 npm run dev
 ```
 
-The frontend will start on `http://localhost:3000` (or another port if 3000 is busy).
-
-**Expected output:**
-```
-▲ Next.js 16.0.1
- - Local:        http://localhost:3000
-✓ Ready in X.Xs
-```
-
-### Access the Application
-
-Open your browser and navigate to:
-- **Frontend**: `http://localhost:3000`
-- **API Health Check**: `http://localhost:8002/health`
-
 ### Using the Interface
 
-1. **Enter text** in the textarea (e.g., "I love this product!")
-2. **Click "Run inference"** to analyze the sentiment
-3. **View the results**: The interface will show:
+1. **Open your browser** and navigate to `http://localhost:3000`
+2. **Enter text** in the textarea (e.g., "I love this product!")
+3. **Click "Run inference"** to analyze the sentiment
+4. **View the results**: The interface will show:
    - Sentiment prediction (Positive/Negative)
    - Confidence score
    - Processing time
